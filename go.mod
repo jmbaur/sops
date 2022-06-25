@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/storage v1.22.0
-	filippo.io/age v1.0.0
+	filippo.io/age v1.1.0-rc.1
 	github.com/Azure/azure-sdk-for-go v63.3.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.26
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
