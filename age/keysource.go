@@ -20,8 +20,10 @@ func init() {
 	log = logging.NewLogger("AGE")
 }
 
-const SopsAgeKeyEnv = "SOPS_AGE_KEY"
-const SopsAgeKeyFileEnv = "SOPS_AGE_KEY_FILE"
+const (
+	SopsAgeKeyEnv     = "SOPS_AGE_KEY"
+	SopsAgeKeyFileEnv = "SOPS_AGE_KEY_FILE"
+)
 
 // MasterKey is an age key used to encrypt and decrypt sops' data key.
 type MasterKey struct {
@@ -38,7 +40,6 @@ func (key *MasterKey) Encrypt(datakey []byte) error {
 
 	if key.parsedRecipient == nil {
 		parsedRecipient, err := parseRecipient(key.Recipient)
-
 		if err != nil {
 			log.WithField("recipient", key.parsedRecipient).Error("Encryption failed")
 			return err
@@ -136,7 +137,6 @@ func (key *MasterKey) Decrypt() ([]byte, error) {
 	}
 
 	identities, err := age.ParseIdentities(ageKeyReader)
-
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,6 @@ func (key *MasterKey) Decrypt() ([]byte, error) {
 	src := bytes.NewReader([]byte(key.EncryptedKey))
 	ar := armor.NewReader(src)
 	r, err := age.Decrypt(ar, identities...)
-
 	if err != nil {
 		return nil, fmt.Errorf("no age identity found in %q that could decrypt the data", ageKeyReaderName)
 	}
@@ -185,7 +184,6 @@ func MasterKeysFromRecipients(commaSeparatedRecipients string) ([]*MasterKey, er
 
 	for _, recipient := range recipients {
 		key, err := masterKeyFromRecipient(recipient)
-
 		if err != nil {
 			return nil, err
 		}
@@ -200,7 +198,6 @@ func MasterKeysFromRecipients(commaSeparatedRecipients string) ([]*MasterKey, er
 func masterKeyFromRecipient(recipient string) (*MasterKey, error) {
 	recipient = strings.TrimSpace(recipient)
 	parsedRecipient, err := parseRecipient(recipient)
-
 	if err != nil {
 		return nil, err
 	}
@@ -213,8 +210,14 @@ func masterKeyFromRecipient(recipient string) (*MasterKey, error) {
 
 // parseRecipient attempts to parse a string containing an encoded age public key
 func parseRecipient(recipient string) (*age.X25519Recipient, error) {
+	r := strings.NewReader(recipient)
+	recipients, err := age.ParseRecipients(r)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	log.Println(recipients)
 	parsedRecipient, err := age.ParseX25519Recipient(recipient)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse input as Bech32-encoded age public key: %w", err)
 	}

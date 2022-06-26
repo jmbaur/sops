@@ -1,4 +1,4 @@
-package main //import "go.mozilla.org/sops/v3/cmd/sops"
+package main // import "go.mozilla.org/sops/v3/cmd/sops"
 
 import (
 	encodingjson "encoding/json"
